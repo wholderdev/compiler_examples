@@ -1,4 +1,18 @@
-task test
-task task
-task hello
+TASK test^
+	1 + 4;
+	1 + 4;
+$
 
+TASK thisisalongnamethatimjusttestingandidontexpectanyissues^
+	3 + 4;
+$
+
+TASK hello^
+	2 + 3;
+$
+
+BEGIN^
+	test<>;
+	thisisalongnamethatimjusttestingandidontexpectanyissues<>;
+	hello<>;
+$
