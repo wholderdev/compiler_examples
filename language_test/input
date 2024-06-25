@@ -7,12 +7,18 @@ TASK thisisalongnamethatimjusttestingandidontexpectanyissues^
 	3 + 4;
 $
 
-TASK hello^
+TASK hello_world^
 	2 + 3;
+	2 + 5 + 7;
+$
+
+TASK tEsTiNg_CasE_sensitivE_Text_func^
+	100 + 200;
 $
 
 BEGIN^
-	test<>;
+	hello_world<>;
 	thisisalongnamethatimjusttestingandidontexpectanyissues<>;
-	hello<>;
+	hello_world<>;
+	test<>;
 $
