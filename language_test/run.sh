@@ -7,5 +7,10 @@ fi
 make;
 
 if [ -f "qplus" ]; then
-	./qplus < input;
+	./qplus < task_input;
+fi
+
+if [ -f "answer_output" ]; then
+	echo -e "\nAnswers:";
+	cat answer_output;
 fi

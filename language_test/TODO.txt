@@ -1,0 +1,10 @@
+# TODO
+
+I want to at some point switch this to its own repository and do proper branching/committing
+
+* Frequency of commits is probably excessive, but I've bluescreened a few times so I'm paranoid (think it's fixed)
+* I should make a branch with the change I'm adding, only commit when the code's stable and there's significant changes
+* Use git stash instead of just committing the code
+
+It's a pet project who cares, but I'm trying to reinforce good habits.
+Just not in this commit specifically.

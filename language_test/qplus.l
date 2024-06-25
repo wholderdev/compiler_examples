@@ -20,7 +20,7 @@
 "+"			{ return T_PLUS_OP; }
 "<"			{ return T_START_PARAM; }
 ">"			{ return T_END_PARAM; }
-[a-z][a-zA-Z_]+		{ yylval.sval = strdup(yytext); return T_ID; }
+[a-zA-Z_]+		{ yylval.sval = strdup(yytext); return T_STRING; }
 [0-9]+			{ yylval.ival = atoi(yytext); return T_INT; }
 
 %%

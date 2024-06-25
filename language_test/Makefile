@@ -11,4 +11,4 @@ qplus: lex.yy.c qplus.tab.c qplus.tab.h
 	gcc -o qplus qplus.tab.c lex.yy.c
 
 clean:
-	rm qplus qplus.tab.c lex.yy.c qplus.tab.h qplus.output output_qplus_test
+	rm qplus qplus.tab.c lex.yy.c qplus.tab.h qplus.output
