@@ -24,7 +24,7 @@ Task *cur_task;
 %union {
 	char *sval;
 	int ival;
-	struct Param *pstval;
+	struct Node *nodeval;
 }
 
 %token T_BEGIN T_TASK T_START_BLOCK T_END_BLOCK T_END_OP T_START_PARAM T_END_PARAM T_PLUS_OP
@@ -34,9 +34,10 @@ Task *cur_task;
 %left T_PLUS_OP
 
 %type<sval> task
-%type<ival> expression
 %type<sval> id
-%type<pstval> params
+%type<nodeval> operation
+%type<nodeval> expression
+%type<nodeval> params
 
 %start program
 
@@ -108,59 +109,45 @@ operations:
 operation:
 	expression T_END_OP
 	{
-		printf("operation#1(%i)\n", $1);
-		fprintf(output_file, "operation=(%i)\n\n", $1);
+		$$ = $1;
+		print_node($$, output_file, 0);
+		printf("operation\n");
 	}
 ;
 
 expression:
 	T_INT
 	{
-		$$ = $1;
-		printf("expression#1(%i)\n", $$);
-		fprintf(output_file, "(%i)\n", $$);
+		$$ = create_int_node($1);
+		printf("expression#1(%i)\n", $1);
 	}
 	| id T_START_PARAM T_END_PARAM 
 	{
-		$$ = 0;
-		printf("expression#2(%s, %i)\n", $1, $$);
+		$$ = create_task_node($1, NULL);
+		printf("expression#2\n");
 	}
 	| id T_START_PARAM params T_END_PARAM 
 	{
-		$$ = 0;
-		printf("expression#3(%s, %i)\n", $1, $$);
+		$$ = create_task_node($1, $3);
+		printf("expression#3\n");
 	}
 	| expression T_PLUS_OP expression
 	{
-		$$ = $1 + $3;
-		printf("expression#4(%i)\n", $$);
-		fprintf(output_file, "(%i + %i = %i)\n", $1, $3, $$);
+		$$ = create_op_node(OP_ADD, $1, $3);
+		printf("expression#4\n");
 	}
 ;
 
 params:	
 	expression
 	{
-		printf("params#1(%i)\n", $1);
-		fprintf(output_file, "param=(%i)\n\n", $1);
-		
-		/*
-		Param *temp_param = (Param *)malloc(sizeof(Param));
-		temp_param->value = $1;
-		$$ = temp_param;
-		*/
+		$$ = create_param_node($1, NULL);
+		printf("params#1\n");
 	}
 	| params expression
 	{
-		printf("params#2(%i)\n", $2);
-		fprintf(output_file, "param=(%i)\n\n", $2);
-		
-		/*
-		Param *temp_param = (Param *)malloc(sizeof(Param));
-		temp_param->value = $2;
-		temp_param->next = $1;
-		$$ = temp_param;
-		*/
+		$$ = create_param_node($2, $1);
+		printf("params#2\n");
 	}
 ;
 
@@ -177,9 +164,9 @@ id:
 int main(void) {
 	yyin = stdin;
 	
-	output_file = fopen("answer_output", "w");
+	output_file = fopen("output_answer", "w");
 	if (output_file == NULL) {
-		perror("Failed to create output file: \"answer_output\"");
+		perror("Failed to create output file: \"output_answer\"");
 		return 1;
 	}
 	

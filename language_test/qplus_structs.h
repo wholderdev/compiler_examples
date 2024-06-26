@@ -6,7 +6,7 @@
 #include <string.h>
 
 typedef enum {
-	NODE_NUM,
+	NODE_INT,
 	NODE_OP,
 	NODE_TASK,
 	NODE_PARAM
@@ -38,11 +38,12 @@ typedef struct Node {
 		struct {
 			OpType op;
 			struct Node *left;
-			struct Node *right;	
+			struct Node *right;
 		}  op_data;
 		struct {
 			Task *task;
 			struct Node *params;
+			const char *name;
 		} task_data; 
 		struct {
 			struct Node *self;
@@ -54,6 +55,13 @@ typedef struct Node {
 
 Program* create_program();
 Task* create_task(const char *name);
+Node* create_int_node(int value);
+Node* create_op_node(OpType type, Node *left, Node *right);
+Node* create_task_node(const char *name, Node *params);
+Node* create_param_node(Node *self, Node *next);
+
+void print_node(Node *p_node, FILE *output_file, int level);
+void lazy_tab(FILE *output_file, int level);	
 
 Task* lookup_task(Program *param_prog, const char *name);
 void free_program(Program *p_prog);
