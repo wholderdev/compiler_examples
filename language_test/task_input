@@ -1,15 +1,15 @@
 TASK test^
 	1 + 4;
 	1 + 4;
-	print<20>;
-	print<20 + 5>;
-	print<20 5>;
+	hello_world<20>;
+	hello_world<20 + 5>;
+	hello_world<20 5>;
 $
 
 TASK thisisalongnamethatimjusttestingandidontexpectanyissues^
 3 + 4;10+4; 200
 +
-500;print<281>;print<17 200>;print<1+ 1>;
+500;hello_world<281>;hello_world<17 200>;hello_world<1+ 1>;
 $
 
 TASK hello_world^

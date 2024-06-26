@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "qplus_structs.h"
+
 extern int yylex(void);
 extern int yyparse();
 
@@ -13,19 +15,8 @@ void yyerror(const char *s);
 
 FILE *output_file;
 
-// TODO: Add to separate .c .h files
-typedef struct Program {
-	struct Task *top_task;
-} Program;
-
-typedef struct Task {
-	char *name;
-	struct Task *next;
-} Task;
-
-Program *cur_prog;
+Program *prog;
 Task *cur_task;
-
 %}
 
 %define parse.error verbose
@@ -33,6 +24,7 @@ Task *cur_task;
 %union {
 	char *sval;
 	int ival;
+	struct Param *pstval;
 }
 
 %token T_BEGIN T_TASK T_START_BLOCK T_END_BLOCK T_END_OP T_START_PARAM T_END_PARAM T_PLUS_OP
@@ -42,9 +34,9 @@ Task *cur_task;
 %left T_PLUS_OP
 
 %type<sval> task
-%type<sval> task_call
 %type<ival> expression
 %type<sval> id
+%type<pstval> params
 
 %start program
 
@@ -54,7 +46,7 @@ program:
         /* empty */
 	{
 		printf("program#1\n");
-		cur_prog = (Program *)malloc(sizeof(Program));
+		prog = create_program();
 	}
 	| program task
 	{
@@ -65,38 +57,33 @@ program:
 task:
 	T_BEGIN block
 	{
-		if(cur_prog->top_task) {
-			Task *temp_task = (Task *)malloc(sizeof(Task));
+		$$ = "BEGIN";
+		printf("task#1(BEGIN)\n");
+		
+		Task *temp_task = create_task($$);
+		if(prog->task_ll) {
 			cur_task->next = temp_task;
 			cur_task = temp_task;
 		}
 		else {
-			cur_task = (Task *)malloc(sizeof(Task));
-			cur_prog->top_task = cur_task;
+			cur_task = temp_task;
+			prog->task_ll = cur_task;
 		}
-		
-		$$ = "BEGIN";
-		cur_task->name = strdup($$);
-		
-		printf("task#1(BEGIN)\n");
 	}
 	| T_TASK id block
 	{
-		// TODO: Redundant, needs a function
-		if(cur_prog->top_task) {
-			Task *temp_task = (Task *)malloc(sizeof(Task));
+		$$ = $2;
+		printf("task#2(%s)\n", $$);
+		
+		Task *temp_task = create_task($$);
+		if(prog->task_ll) {
 			cur_task->next = temp_task;
 			cur_task = temp_task;
 		}
 		else {
-			cur_task = (Task *)malloc(sizeof(Task));
-			cur_prog->top_task = cur_task;
+			cur_task = temp_task;
+			prog->task_ll = cur_task;
 		}
-		
-		$$ = $2;
-		cur_task->name = strdup($$);
-		
-		printf("task#2(%s)\n", $$);
 	}
 ;
 
@@ -124,10 +111,6 @@ operation:
 		printf("operation#1(%i)\n", $1);
 		fprintf(output_file, "operation=(%i)\n\n", $1);
 	}
-	| task_call T_END_OP
-	{
-		printf("operation#2\n");
-	}
 ;
 
 expression:
@@ -137,24 +120,21 @@ expression:
 		printf("expression#1(%i)\n", $$);
 		fprintf(output_file, "(%i)\n", $$);
 	}
-	| expression T_PLUS_OP expression
+	| id T_START_PARAM T_END_PARAM 
 	{
-		$$ = $1 + $3;
-		printf("expression#1(%i)\n", $$);
-		fprintf(output_file, "(%i + %i = %i)\n", $1, $3, $$);
-	}
-;
-
-task_call:
-	id T_START_PARAM T_END_PARAM 
-	{
-		$$ = $1;
-		printf("task_call#1(%s)\n", $$);
+		$$ = 0;
+		printf("expression#2(%s, %i)\n", $1, $$);
 	}
 	| id T_START_PARAM params T_END_PARAM 
 	{
-		$$ = $1;
-		printf("task_call#2(%s)\n", $$);
+		$$ = 0;
+		printf("expression#3(%s, %i)\n", $1, $$);
+	}
+	| expression T_PLUS_OP expression
+	{
+		$$ = $1 + $3;
+		printf("expression#4(%i)\n", $$);
+		fprintf(output_file, "(%i + %i = %i)\n", $1, $3, $$);
 	}
 ;
 
@@ -163,11 +143,24 @@ params:
 	{
 		printf("params#1(%i)\n", $1);
 		fprintf(output_file, "param=(%i)\n\n", $1);
+		
+		/*
+		Param *temp_param = (Param *)malloc(sizeof(Param));
+		temp_param->value = $1;
+		$$ = temp_param;
+		*/
 	}
 	| params expression
 	{
 		printf("params#2(%i)\n", $2);
 		fprintf(output_file, "param=(%i)\n\n", $2);
+		
+		/*
+		Param *temp_param = (Param *)malloc(sizeof(Param));
+		temp_param->value = $2;
+		temp_param->next = $1;
+		$$ = temp_param;
+		*/
 	}
 ;
 
@@ -196,13 +189,14 @@ int main(void) {
 	
 	printf("\nTASK LIST:\n");
 	fprintf(output_file, "\nTASK LIST\n");
-	Task *task_topr = cur_prog->top_task;
+	Task *task_topr = prog->task_ll;
 	while(task_topr) {
 		printf("\t%s\n", task_topr->name);
 		fprintf(output_file, "\t%s\n", task_topr->name);
 		task_topr = task_topr->next;
 	}
 	
+	free_program(prog);
 	fclose(output_file);
 	
 	return 0;
