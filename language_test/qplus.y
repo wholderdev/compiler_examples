@@ -16,7 +16,6 @@ void yyerror(const char *s);
 FILE *output_file;
 
 Program *prog;
-Task *cur_task;
 %}
 
 %define parse.error verbose
@@ -24,7 +23,10 @@ Task *cur_task;
 %union {
 	char *sval;
 	int ival;
+	struct Task *taskval;
 	struct Node *nodeval;
+	struct Block *blockval;
+	struct Operation *opval;
 }
 
 %token T_BEGIN T_TASK T_START_BLOCK T_END_BLOCK T_END_OP T_START_PARAM T_END_PARAM T_PLUS_OP
@@ -33,11 +35,12 @@ Task *cur_task;
 
 %left T_PLUS_OP
 
-%type<sval> task
-%type<sval> id
-%type<nodeval> operation
+%type<taskval> task
+%type<blockval> block
+%type<opval> operations
 %type<nodeval> expression
 %type<nodeval> params
+%type<sval> id
 
 %start program
 
@@ -52,110 +55,96 @@ program:
 	| program task
 	{
 		printf("program#2\n");
+		if(prog->task_ll) {
+			$2->next = prog->task_ll;
+		}
+		prog->task_ll = $2;
 	}
 ;
 
 task:
 	T_BEGIN block
 	{
-		$$ = "BEGIN";
 		printf("task#1(BEGIN)\n");
-		
-		Task *temp_task = create_task($$);
-		if(prog->task_ll) {
-			cur_task->next = temp_task;
-			cur_task = temp_task;
-		}
-		else {
-			cur_task = temp_task;
-			prog->task_ll = cur_task;
-		}
+		$$ = create_task("BEGIN", $2);
 	}
 	| T_TASK id block
 	{
-		$$ = $2;
-		printf("task#2(%s)\n", $$);
-		
-		Task *temp_task = create_task($$);
-		if(prog->task_ll) {
-			cur_task->next = temp_task;
-			cur_task = temp_task;
-		}
-		else {
-			cur_task = temp_task;
-			prog->task_ll = cur_task;
-		}
+		printf("task#2(%s)\n", $2);
+		$$ = create_task($2, $3);
 	}
 ;
 
+/*
+	A flaws with this approach:
+		A block would make more sense as an expression, since having
+		nested blocks is possible in a lot of programming languages.
+
+*/
 block:
 	T_START_BLOCK operations T_END_BLOCK
 	{
 		printf("block\n");
+		$$ = create_block($2);
+		print_oper_ll($$->operation_ll, output_file, 0);
 	}
 ;
 
+// TODO: consider refactor from operations (+ is an operation)
 operations:
-	operation
-	{
-		printf("operations#1\n");
-	}
-	| operations operation
-	{
-		printf("operations#2\n");
-	}
-;
-
-operation:
 	expression T_END_OP
 	{
-		$$ = $1;
-		print_node($$, output_file, 0);
-		printf("operation\n");
+		printf("operations#1\n");
+		$$ = create_operation($1, NULL);
+	}
+	| operations expression T_END_OP
+	{
+		printf("operations#2\n");
+		$$ = create_operation($2, $1);
 	}
 ;
 
 expression:
 	T_INT
 	{
-		$$ = create_int_node($1);
 		printf("expression#1(%i)\n", $1);
+		$$ = create_int_node($1);
 	}
 	| id T_START_PARAM T_END_PARAM 
 	{
-		$$ = create_task_node($1, NULL);
 		printf("expression#2\n");
+		$$ = create_task_node($1, NULL);
 	}
 	| id T_START_PARAM params T_END_PARAM 
 	{
-		$$ = create_task_node($1, $3);
 		printf("expression#3\n");
+		$$ = create_task_node($1, $3);
 	}
 	| expression T_PLUS_OP expression
 	{
-		$$ = create_op_node(OP_ADD, $1, $3);
 		printf("expression#4\n");
+		$$ = create_op_node(OP_ADD, $1, $3);
 	}
 ;
 
 params:	
 	expression
 	{
-		$$ = create_param_node($1, NULL);
 		printf("params#1\n");
+		$$ = create_param_node($1, NULL);
 	}
 	| params expression
 	{
-		$$ = create_param_node($2, $1);
 		printf("params#2\n");
+		$$ = create_param_node($2, $1);
 	}
 ;
 
 id:
 	T_STRING
 	{
+		printf("id(%s)\n", $1);
 		$$ = $1;
-		printf("id(%s)\n", $$);
 	}
 ;
 

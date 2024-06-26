@@ -18,15 +18,23 @@ typedef enum {
 
 typedef struct Program {
 	struct Task *task_ll;
-	struct Node *node_tree;
 } Program;
 
 typedef struct Task {
 	char *name;
 	// TODO: Signature with params and return
-	struct Node *node_tree;
+	struct Block *block;
 	struct Task *next;
 } Task;
+
+typedef struct Block {
+	struct Operation *operation_ll;
+} Block;
+
+typedef struct Operation {
+	struct Node *ast;
+	struct Operation *next;
+} Operation;
 
 // TODO: Variable
 
@@ -54,18 +62,24 @@ typedef struct Node {
 
 
 Program* create_program();
-Task* create_task(const char *name);
+Task* create_task(const char *name, Block *p_block);
+Block* create_block(Operation *p_op);
+Operation* create_operation(Node *ast, Operation *next);
 Node* create_int_node(int value);
 Node* create_op_node(OpType type, Node *left, Node *right);
 Node* create_task_node(const char *name, Node *params);
 Node* create_param_node(Node *self, Node *next);
 
+//void print_block
+void print_oper_ll(Operation *p_oper, FILE *output_file, int level);
 void print_node(Node *p_node, FILE *output_file, int level);
 void lazy_tab(FILE *output_file, int level);	
 
 Task* lookup_task(Program *param_prog, const char *name);
 void free_program(Program *p_prog);
 void free_tasks(Task *p_task);
+void free_block(Block *p_block);
+void free_oper_ll(Operation *p_oper);
 void free_nodes(Node *p_node);
 
 #endif // QPLUS_STRUCTS_H

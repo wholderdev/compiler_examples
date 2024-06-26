@@ -1,6 +1,6 @@
 TASK test^
 	1 + 4;
-	1 + 4;
+	1333 + 6;
 	hello_world<20>;
 	hello_world<20 + 5>;
 	hello_world<20 5>;
