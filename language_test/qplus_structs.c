@@ -13,19 +13,19 @@ Task* create_task(const char *name, Block *p_block) {
 	return new_task;
 }
 
-Block* create_block(Operation *p_op) {
+Block* create_block(Statement *p_op) {
 	Block *new_block = (Block *)malloc(sizeof(Block));
-	new_block->operation_ll = p_op;
+	new_block->statement_ll = p_op;
 	
 	return new_block;
 }
 
-Operation* create_operation(Node *ast, Operation *next) {
-	Operation *new_operation = (Operation *)malloc(sizeof(Operation));
-	new_operation->ast = ast;
-	new_operation->next = next;
+Statement* create_statement_node(Node *ast, Statement *next) {
+	Statement *new_statement = (Statement *)malloc(sizeof(Statement));
+	new_statement->ast = ast;
+	new_statement->next = next;
 	
-	return new_operation;
+	return new_statement;
 }
 
 Node* create_int_node(int value) {
@@ -70,74 +70,93 @@ Node* create_param_node(Node *self, Node *next) {
 	return new_node;
 }
 
-void print_oper_ll(Operation *p_oper, FILE *output_file, int level) {
+void dry_compile(Program *p_prog) {
+	return;
+}
+
+void print_block(Block *p_block, FILE *output_file, int level) {
 	lazy_tab(output_file, level);
-	fprintf(output_file, "OPERATIONS\n");
-	while(p_oper) {
-		print_node(p_oper->ast, output_file, level + 1);
-		p_oper = p_oper->next;
-	}	
+	fprintf(output_file, "BLOCK\n");
+
+	if(!p_block) {
+		lazy_tab(output_file, level);
+		fprintf(output_file, "\tNULL\n");
+		return;
+	}
+
+	print_stmt_ll(p_block->statement_ll, output_file, level + 1);
+}
+
+void print_stmt_ll(Statement *p_stmt, FILE *output_file, int level) {
+	if(!p_stmt) {
+		return;
+	}
+
+	print_stmt_ll(p_stmt->next, output_file, level);
+
+	lazy_tab(output_file, level);
+	fprintf(output_file, "STATEMENT\n");
+	print_node(p_stmt->ast, output_file, level + 1);
 }
 
 void print_node(Node *p_node, FILE *output_file, int level) {
+	if(!p_node) {
+		lazy_tab(output_file, level);
+		fprintf(output_file, "\tNULL\n");
+		return;
+	}
 	switch(p_node->type) {
 		case NODE_INT:
 			lazy_tab(output_file, level);
 			fprintf(output_file, "NODE_INT\n");
+			
 			lazy_tab(output_file, level);
 			fprintf(output_file, "\tvalue(%i)\n", p_node->data.num);
+			
 			break;
 		case NODE_OP:
 			lazy_tab(output_file, level);
-			fprintf(output_file, "NODE_OP\n");
-			lazy_tab(output_file, level);
 			switch(p_node->data.op_data.op) {
 				case OP_ADD:
-				fprintf(output_file, "\toptype(OP_ADD)\n");
+					fprintf(output_file, "NODE_OP(OP_ADD)\n");
 					break;
 			}
-
+			
 			lazy_tab(output_file, level);
 			fprintf(output_file, "\tleft\n");
-			if(p_node->data.op_data.left) {
-				print_node(p_node->data.op_data.left, output_file,
-					level + 1);
-			}
-			else {
-				fprintf(output_file, "\tNULL\n");
-			}
-
+			print_node(p_node->data.op_data.left, output_file, level + 1);
+			
 			lazy_tab(output_file, level);
 			fprintf(output_file, "\tright\n");
-			if(p_node->data.op_data.right) {
-				print_node(p_node->data.op_data.right, output_file,
-					level + 1);
-			}
-			else {
-				fprintf(output_file, "\tNULL\n");
-			}
+			print_node(p_node->data.op_data.right, output_file, level + 1);
+			
 			break;
 		case NODE_TASK:
 			lazy_tab(output_file, level);
 			fprintf(output_file, "NODE_TASK\n");
+			
 			lazy_tab(output_file, level);
 			fprintf(output_file, "\tname(%s)\n", p_node->data.task_data.name);
-			if(p_node->data.task_data.params) {
-				print_node(p_node->data.task_data.params, output_file,
-					level + 1);
-			}
+			
+			lazy_tab(output_file, level);
+			fprintf(output_file, "\tparams\n");
+			print_node(p_node->data.task_data.params, output_file, level + 1);
+			
 			break;
 		case NODE_PARAM:
 			lazy_tab(output_file, level);
 			fprintf(output_file, "NODE_PARAM\n");
-			if(p_node->data.param_data.self) {
-				print_node(p_node->data.param_data.self, output_file,
-					level + 1);
-			}
-			if(p_node->data.param_data.next) {
-				print_node(p_node->data.param_data.next, output_file,
-					level + 1);
-			}
+			
+			lazy_tab(output_file, level);
+			fprintf(output_file, "\tself\n");
+			print_node(p_node->data.param_data.self, output_file,
+				level + 1);
+			
+			lazy_tab(output_file, level);
+			fprintf(output_file, "\tnext\n");
+			print_node(p_node->data.param_data.next, output_file,
+				level + 1);
+			
 			break;
 	}
 	return;
@@ -191,19 +210,19 @@ void free_tasks(Task *p_task) {
 
 void free_block(Block *p_block) {
 	printf("\t\t\tFreeing Block:\n");
-	free_oper_ll(p_block->operation_ll);
+	free_stmt_ll(p_block->statement_ll);
 	
 	return;
 }
 
-void free_oper_ll(Operation *p_oper) {
-	Operation *cur = p_oper;
-	Operation *next = NULL;
+void free_stmt_ll(Statement *p_stmt) {
+	Statement *cur = p_stmt;
+	Statement *next = NULL;
 	if(cur == NULL) {
 		printf("CUR IS NULL\n");
 	}
 	
-	printf("\t\t\t\tFreeing Operations:\n");
+	printf("\t\t\t\tFreeing Statements:\n");
 	while(cur) {
 		next = cur->next;
 		

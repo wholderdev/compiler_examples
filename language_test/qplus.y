@@ -26,7 +26,7 @@ Program *prog;
 	struct Task *taskval;
 	struct Node *nodeval;
 	struct Block *blockval;
-	struct Operation *opval;
+	struct Statement *opval;
 }
 
 %token T_BEGIN T_TASK T_START_BLOCK T_END_BLOCK T_END_OP T_START_PARAM T_END_PARAM T_PLUS_OP
@@ -37,7 +37,7 @@ Program *prog;
 
 %type<taskval> task
 %type<blockval> block
-%type<opval> operations
+%type<opval> statements
 %type<nodeval> expression
 %type<nodeval> params
 %type<sval> id
@@ -82,25 +82,24 @@ task:
 
 */
 block:
-	T_START_BLOCK operations T_END_BLOCK
+	T_START_BLOCK statements T_END_BLOCK
 	{
 		printf("block\n");
 		$$ = create_block($2);
-		print_oper_ll($$->operation_ll, output_file, 0);
+		print_block($$, output_file, 0);
 	}
 ;
 
-// TODO: consider refactor from operations (+ is an operation)
-operations:
+statements:
 	expression T_END_OP
 	{
-		printf("operations#1\n");
-		$$ = create_operation($1, NULL);
+		printf("statements#1\n");
+		$$ = create_statement_node($1, NULL);
 	}
-	| operations expression T_END_OP
+	| statements expression T_END_OP
 	{
-		printf("operations#2\n");
-		$$ = create_operation($2, $1);
+		printf("statements#2\n");
+		$$ = create_statement_node($2, $1);
 	}
 ;
 

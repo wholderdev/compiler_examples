@@ -9,7 +9,8 @@ typedef enum {
 	NODE_INT,
 	NODE_OP,
 	NODE_TASK,
-	NODE_PARAM
+	NODE_PARAM,
+	NODE_STMT
 } NodeType;
 
 typedef enum {
@@ -28,13 +29,13 @@ typedef struct Task {
 } Task;
 
 typedef struct Block {
-	struct Operation *operation_ll;
+	struct Statement *statement_ll;
 } Block;
 
-typedef struct Operation {
+typedef struct Statement {
 	struct Node *ast;
-	struct Operation *next;
-} Operation;
+	struct Statement *next;
+} Statement;
 
 // TODO: Variable
 
@@ -63,15 +64,18 @@ typedef struct Node {
 
 Program* create_program();
 Task* create_task(const char *name, Block *p_block);
-Block* create_block(Operation *p_op);
-Operation* create_operation(Node *ast, Operation *next);
+Block* create_block(Statement *p_op);
+Statement* create_statement_node(Node *ast, Statement *next);
 Node* create_int_node(int value);
 Node* create_op_node(OpType type, Node *left, Node *right);
 Node* create_task_node(const char *name, Node *params);
 Node* create_param_node(Node *self, Node *next);
 
+void dry_compile(Program *p_prog);
+
 //void print_block
-void print_oper_ll(Operation *p_oper, FILE *output_file, int level);
+void print_block(Block *p_block, FILE *output_file, int level);
+void print_stmt_ll(Statement *p_stmt, FILE *output_file, int level);
 void print_node(Node *p_node, FILE *output_file, int level);
 void lazy_tab(FILE *output_file, int level);	
 
@@ -79,7 +83,7 @@ Task* lookup_task(Program *param_prog, const char *name);
 void free_program(Program *p_prog);
 void free_tasks(Task *p_task);
 void free_block(Block *p_block);
-void free_oper_ll(Operation *p_oper);
+void free_stmt_ll(Statement *p_stmt);
 void free_nodes(Node *p_node);
 
 #endif // QPLUS_STRUCTS_H
