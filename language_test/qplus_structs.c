@@ -32,8 +32,6 @@ Node* create_int_node(int value) {
 	Node* new_node = (Node *)malloc(sizeof(Node));
 	new_node->type = NODE_INT;
 	new_node->data.num = value;
-	printf("\t\tINT(%i)\n", value);
-	printf("\t\tINTCONV(%i)\n", new_node->data.num);
 	
 	return new_node;
 }
@@ -70,7 +68,115 @@ Node* create_param_node(Node *self, Node *next) {
 	return new_node;
 }
 
-void dry_compile(Program *p_prog) {
+void reverse_program(Program *p_prog, FILE *output_file, int level) {
+	if(p_prog) {
+		Task *cur_task = p_prog->task_ll;
+		while(cur_task) {
+			reverse_task(cur_task, output_file, level + 1);
+			cur_task = cur_task->next;
+		}
+	}
+	return;	
+}
+void reverse_task(Task *p_task, FILE *output_file, int level) {
+	if(p_task) {
+		fprintf(output_file, "task %s {\n", p_task->name);
+		reverse_block(p_task->block, output_file, level + 1);
+		fprintf(output_file, "}");
+	}
+	fprintf(output_file, "\n\n");
+	return;	
+}
+void reverse_block(Block *p_block, FILE *output_file, int level) {
+	if(p_block) {
+		reverse_stmt_ll(p_block->statement_ll, output_file, level);
+	}
+	return;	
+}
+void reverse_stmt_ll(Statement *p_stmt, FILE *output_file, int level) {
+	if(p_stmt) {
+		reverse_stmt_ll(p_stmt->next, output_file, level);
+		// TODO: Test code (remove)
+		//fprintf(output_file, "\t\tA statement\n");
+		fprintf(output_file, "\t");
+		reverse_node(p_stmt->ast, output_file, level + 1);
+		fprintf(output_file, ";\n");
+	}
+	return;	
+}
+void reverse_node(Node *p_node, FILE *output_file, int level) {
+	if(p_node) {
+		switch(p_node->type) {
+			case NODE_INT:
+				fprintf(output_file, "%i", p_node->data.num);
+				
+				break;
+			case NODE_OP:
+				reverse_node(p_node->data.op_data.left, output_file, level + 1);
+
+				switch(p_node->data.op_data.op) {
+					case OP_ADD:
+						fprintf(output_file, " + ");	
+						break;
+				}
+				
+				reverse_node(p_node->data.op_data.right, output_file, level + 1);
+				
+				break;
+			case NODE_TASK:
+				fprintf(output_file, "%s( ", p_node->data.task_data.name);
+				
+				reverse_node(p_node->data.task_data.params, output_file, level + 1);
+
+				fprintf(output_file, ")");
+				
+				break;
+			case NODE_PARAM:
+				reverse_node(p_node->data.param_data.self, output_file,
+					level + 1);
+
+				fprintf(output_file, ", ");
+				
+				reverse_node(p_node->data.param_data.next, output_file,
+					level + 1);
+				
+				break;
+		}
+	}
+	return;
+}
+
+void print_program(Program *p_prog, FILE *output_file, int level) {
+	lazy_tab(output_file, level);
+	fprintf(output_file, "PROGRAM\n");
+
+	if(!p_prog) {
+		lazy_tab(output_file, level);
+		fprintf(output_file, "\tNULL\n");
+	}
+	else {
+		Task *cur_task = p_prog->task_ll;
+		while(cur_task) {
+			print_task(cur_task, output_file, level + 1);
+			cur_task = cur_task->next;
+		}
+	}
+	return;
+}
+
+void print_task(Task *p_task, FILE *output_file, int level) {
+	lazy_tab(output_file, level);
+	fprintf(output_file, "TASK\n");
+
+	if(!p_task) {
+		lazy_tab(output_file, level);
+		fprintf(output_file, "\tNULL\n");
+	}
+	else {
+		lazy_tab(output_file, level);
+		fprintf(output_file, "\tName: %s\n", p_task->name);
+		print_block(p_task->block, output_file, level + 1);
+	}
 	return;
 }
 
@@ -81,10 +187,11 @@ void print_block(Block *p_block, FILE *output_file, int level) {
 	if(!p_block) {
 		lazy_tab(output_file, level);
 		fprintf(output_file, "\tNULL\n");
-		return;
 	}
-
-	print_stmt_ll(p_block->statement_ll, output_file, level + 1);
+	else {
+		print_stmt_ll(p_block->statement_ll, output_file, level + 1);
+	}
+	return;
 }
 
 void print_stmt_ll(Statement *p_stmt, FILE *output_file, int level) {
@@ -97,6 +204,8 @@ void print_stmt_ll(Statement *p_stmt, FILE *output_file, int level) {
 	lazy_tab(output_file, level);
 	fprintf(output_file, "STATEMENT\n");
 	print_node(p_stmt->ast, output_file, level + 1);
+
+	return;
 }
 
 void print_node(Node *p_node, FILE *output_file, int level) {

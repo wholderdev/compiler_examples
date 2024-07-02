@@ -1,6 +1,6 @@
 TASK test^
 	1 + 4;
-	1333 + 6;
+	1333 + 6 + hello_world<20 10 + 5>;
 	hello_world<20>;
 	hello_world<20 + 5>;
 	hello_world<20 5>;
@@ -18,7 +18,11 @@ TASK hello_world^
 $
 
 TASK tEsTiNg_CasE_sensitivE_Text_func^
-	100 + 200 + 29 + 77 + 88;
+	100 + 
+200 
++ 29  + 77 
+
++ 88;
 $
 
 TASK Fun^

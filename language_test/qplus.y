@@ -13,8 +13,6 @@ extern FILE* yyin;
 
 void yyerror(const char *s);
 
-FILE *output_file;
-
 Program *prog;
 %}
 
@@ -77,7 +75,7 @@ task:
 
 /*
 	A flaws with this approach:
-		A block would make more sense as an expression, since having
+		A block might make more sense as an expression, since having
 		nested blocks is possible in a lot of programming languages.
 
 */
@@ -86,7 +84,6 @@ block:
 	{
 		printf("block\n");
 		$$ = create_block($2);
-		print_block($$, output_file, 0);
 	}
 ;
 
@@ -152,27 +149,33 @@ id:
 int main(void) {
 	yyin = stdin;
 	
-	output_file = fopen("output_answer", "w");
-	if (output_file == NULL) {
-		perror("Failed to create output file: \"output_answer\"");
-		return 1;
-	}
-	
 	do {
 		yyparse();
 	} while(!feof(yyin));
-	
-	printf("\nTASK LIST:\n");
-	fprintf(output_file, "\nTASK LIST\n");
-	Task *task_topr = prog->task_ll;
-	while(task_topr) {
-		printf("\t%s\n", task_topr->name);
-		fprintf(output_file, "\t%s\n", task_topr->name);
-		task_topr = task_topr->next;
+
+	// ----- OUTPUT TREE -----
+	FILE *output_tree;
+	output_tree = fopen("output_tree", "w");
+	if (output_tree == NULL) {
+		perror("Failed to create output file: \"output_tree\"");
+		return 1;
 	}
 	
+	print_program(prog, output_tree, 0);
+	
+	// ----- OUTPUT REVERSE -----
+	FILE *output_reverse;
+	output_reverse = fopen("output_reverse", "w");
+	if (output_reverse == NULL) {
+		perror("Failed to create output file: \"output_reverse\"");
+		return 1;
+	}
+	
+	reverse_program(prog, output_reverse, 0);
+	
 	free_program(prog);
-	fclose(output_file);
+	fclose(output_tree);
+	fclose(output_reverse);
 	
 	return 0;
 }

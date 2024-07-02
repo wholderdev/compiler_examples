@@ -71,9 +71,14 @@ Node* create_op_node(OpType type, Node *left, Node *right);
 Node* create_task_node(const char *name, Node *params);
 Node* create_param_node(Node *self, Node *next);
 
-void dry_compile(Program *p_prog);
+void reverse_program(Program *p_prog, FILE *output_file, int level);
+void reverse_task(Task *p_task, FILE *output_file, int level);
+void reverse_block(Block *p_block, FILE *output_file, int level);
+void reverse_stmt_ll(Statement *p_stmt, FILE *output_file, int level);
+void reverse_node(Node *p_node, FILE *output_file, int level);
 
-//void print_block
+void print_program(Program *p_prog, FILE *output_file, int level);
+void print_task(Task *p_task, FILE *output_file, int level);
 void print_block(Block *p_block, FILE *output_file, int level);
 void print_stmt_ll(Statement *p_stmt, FILE *output_file, int level);
 void print_node(Node *p_node, FILE *output_file, int level);
