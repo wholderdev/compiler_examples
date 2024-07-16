@@ -8,7 +8,7 @@ lex.yy.c: qplus.l qplus.tab.h
 
 
 qplus: lex.yy.c qplus.tab.c qplus.tab.h
-	gcc -o qplus qplus.tab.c lex.yy.c qplus_structs.c
+	gcc -g -o qplus qplus.tab.c lex.yy.c qplus_structs.c
 
 clean:
 	rm qplus qplus.tab.c lex.yy.c qplus.tab.h qplus.output

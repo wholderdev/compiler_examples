@@ -38,7 +38,6 @@ Program *prog;
 %type<opval> statements
 %type<nodeval> expression
 %type<nodeval> params
-%type<sval> id
 
 %start program
 
@@ -66,7 +65,7 @@ task:
 		printf("task#1(BEGIN)\n");
 		$$ = create_task("BEGIN", $2);
 	}
-	| T_TASK id block
+	| T_TASK T_STRING block
 	{
 		printf("task#2(%s)\n", $2);
 		$$ = create_task($2, $3);
@@ -106,19 +105,24 @@ expression:
 		printf("expression#1(%i)\n", $1);
 		$$ = create_int_node($1);
 	}
-	| id T_START_PARAM T_END_PARAM 
+	| T_STRING T_START_PARAM T_END_PARAM 
 	{
 		printf("expression#2\n");
 		$$ = create_task_node($1, NULL);
 	}
-	| id T_START_PARAM params T_END_PARAM 
+	| T_STRING T_START_PARAM params T_END_PARAM 
 	{
 		printf("expression#3\n");
 		$$ = create_task_node($1, $3);
 	}
-	| expression T_PLUS_OP expression
+	| T_STRING
 	{
 		printf("expression#4\n");
+		$$ = create_var_node($1);
+	}
+	| expression T_PLUS_OP expression
+	{
+		printf("expression#5\n");
 		$$ = create_op_node(OP_ADD, $1, $3);
 	}
 ;
@@ -133,14 +137,6 @@ params:
 	{
 		printf("params#2\n");
 		$$ = create_param_node($2, $1);
-	}
-;
-
-id:
-	T_STRING
-	{
-		printf("id(%s)\n", $1);
-		$$ = $1;
 	}
 ;
 
@@ -172,6 +168,14 @@ int main(void) {
 	}
 	
 	reverse_program(prog, output_reverse, 0);
+	
+	FILE *output_pseudoasm;
+	output_pseudoasm = fopen("output_pseudoasm", "w");
+	if (output_pseudoasm == NULL) {
+		perror("Failed to create output file: \"output_pseudoasm\"");
+		return 1;
+	}
+	pseudoasm_program(prog, output_pseudoasm, 0);
 	
 	free_program(prog);
 	fclose(output_tree);

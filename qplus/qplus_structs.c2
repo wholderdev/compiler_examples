@@ -1,16 +1,12 @@
 #include "qplus_structs.h"
 
-int variable_count = 0;
-
 Program* create_program() {
-	printf("create_program\n");
 	Program *cur_prog = (Program *)malloc(sizeof(Program));
-	printf("create_program: ret\n");
 	return cur_prog;
 }
 
 Task* create_task(const char *name, Block *p_block) {
-	printf("create_task\n");
+	printf("create_task");
 	Task *new_task = (Task *)malloc(sizeof(Task));
 	new_task->name = strdup(name);
 	new_task->block = p_block;
@@ -19,7 +15,7 @@ Task* create_task(const char *name, Block *p_block) {
 }
 
 Block* create_block(Statement *p_op) {
-	printf("create_block\n");
+	printf("create_block");
 	Block *new_block = (Block *)malloc(sizeof(Block));
 	new_block->statement_ll = p_op;
 	
@@ -27,7 +23,7 @@ Block* create_block(Statement *p_op) {
 }
 
 Statement* create_statement_node(Node *ast, Statement *next) {
-	printf("create_statement\n");
+	printf("create_statement");
 	Statement *new_statement = (Statement *)malloc(sizeof(Statement));
 	new_statement->ast = ast;
 	new_statement->next = next;
@@ -36,7 +32,7 @@ Statement* create_statement_node(Node *ast, Statement *next) {
 }
 
 Node* create_int_node(int value) {
-	printf("create_int\n");
+	printf("create_int");
 	Node* new_node = (Node *)malloc(sizeof(Node));
 	new_node->type = NODE_INT;
 	new_node->data.num = value;
@@ -45,15 +41,16 @@ Node* create_int_node(int value) {
 }
 
 Node* create_var_node(const char *name) {
-	printf("create_var\n");
+	printf("create_var");
 	Node* new_node = (Node *)malloc(sizeof(Node));
 	new_node->type = NODE_VAR;
 	new_node->data.var_name = strdup(name);
-	
+
 	return new_node;
 }
 
 Node* create_op_node(OpType type, Node *left, Node *right) {
+	jjjjjjjjjjjjj
 	Node* new_node = (Node *)malloc(sizeof(Node));
 	new_node->type = NODE_OP;
 	switch(type) {
@@ -155,7 +152,7 @@ void reverse_node(Node *p_node, FILE *output_file, int level) {
 			case NODE_PARAM:
 				reverse_node(p_node->data.param_data.self, output_file,
 					level + 1);
-				
+
 				fprintf(output_file, ", ");
 				
 				reverse_node(p_node->data.param_data.next, output_file,
@@ -163,103 +160,6 @@ void reverse_node(Node *p_node, FILE *output_file, int level) {
 				
 				break;
 		}
-	}
-	return;
-}
-
-void pseudoasm_program(Program *p_prog, FILE *output_file, int level) {
-	variable_count = 0;
-	if(p_prog) {
-		Task *cur_task = p_prog->task_ll;	
-		while(cur_task) {
-			pseudoasm_task(cur_task, output_file, level + 1);
-			cur_task = cur_task->next;
-		}
-	}	
-	return;
-}
-
-void pseudoasm_task(Task *p_task, FILE *output_file, int level) {
-	if(p_task) {
-		fprintf(output_file, "Label %s:\n", p_task->name);
-		pseudoasm_block(p_task->block, output_file, level + 1);
-		fprintf(output_file, "\tret\n");
-		fprintf(output_file, "\n");
-	}
-	return;
-}
-
-void pseudoasm_block(Block *p_block, FILE *output_file, int level) {
-	if(p_block) {
-		pseudoasm_stmt_ll(p_block->statement_ll, output_file, level);
-	}
-	return;
-}
-
-void pseudoasm_stmt_ll(Statement *p_stmt, FILE *output_file, int level) {
-	if(p_stmt) {
-		pseudoasm_stmt_ll(p_stmt->next, output_file, level);
-		pseudoasm_node(p_stmt->ast, output_file, level + 1);
-	}
-	return;
-}
-
-void pseudoasm_node(Node *p_node, FILE *output_file, int level) {
-	if(p_node) {
-		switch(p_node->type) {
-			case NODE_INT:
-				fprintf(output_file, "\tload_int %%r1, %i\n", p_node->data.num);
-				
-				break;
-			case NODE_VAR:
-				fprintf(output_file, "\tload_var %%r1, %s\n", p_node->data.var_name);
-
-				break;
-			case NODE_OP:
-				pseudoasm_node(p_node->data.op_data.left, output_file, level + 1);
-				fprintf(output_file, "\tpush %%r1\n");	
-				pseudoasm_node(p_node->data.op_data.right, output_file, level + 1);
-				fprintf(output_file, "\tpop %%r2\n");	
-				switch(p_node->data.op_data.op) {
-					case OP_ADD:
-						fprintf(output_file, "\tadd %%r1, %%r2\n");
-						break;
-				}
-				
-				break;
-			case NODE_TASK:
-				pseudoasm_parampush(p_node->data.task_data.params, output_file, level + 1);
-				fprintf(output_file, "\tjump label:%s\n", p_node->data.task_data.name);
-				pseudoasm_parampop(p_node->data.task_data.params, output_file, level + 1);
-
-				break;
-			case NODE_PARAM:
-				fprintf(output_file, "\tpush %%r1\n");
-				pseudoasm_node(p_node->data.param_data.self, output_file, level + 1);
-				
-				pseudoasm_node(p_node->data.param_data.next, output_file, level + 1);
-				
-				break;
-		}
-	}
-	return;
-}
-
-void pseudoasm_parampush(Node *p_node, FILE *output_file, int level) {
-	Node *curp_node = p_node;
-	while(curp_node) {
-		pseudoasm_node(curp_node->data.param_data.self, output_file, level + 1);
-		fprintf(output_file, "\tpush_param %%r1\n");
-		curp_node = curp_node->data.param_data.next;
-	}
-	return;
-}
-
-void pseudoasm_parampop(Node *p_node, FILE *output_file, int level) {
-	Node *curp_node = p_node;
-	while(curp_node) {
-		fprintf(output_file, "\tpop_param\n");
-		curp_node = curp_node->data.param_data.next;
 	}
 	return;
 }
@@ -344,10 +244,10 @@ void print_node(Node *p_node, FILE *output_file, int level) {
 		case NODE_VAR:
 			lazy_tab(output_file, level);
 			fprintf(output_file, "NODE_VAR\n");
-			
+
 			lazy_tab(output_file, level);
 			fprintf(output_file, "\tname(%s)\n", p_node->data.var_name);
-			
+
 			break;
 		case NODE_OP:
 			lazy_tab(output_file, level);

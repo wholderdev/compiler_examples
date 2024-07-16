@@ -1,28 +1,22 @@
 TASK test^
 	a + 1 + 4;
-	1333 + 6 + hello_world<20 10 + 5>;
-	hello_world<20>;
-	hello_world<20 + 5>;
-	hello_world<20 5>;
 $
 
 TASK thisisalongnamethatimjusttestingandidontexpectanyissues^
-3 + 4;10+4; 200
-+
-500;hello_world<281>;hello_world<17 200>;hello_world<1+ 1>;
+	3 + 4;
+	hello_world<281>;
+	hello_world<17 200>;
+	hello_world<1+ 1>;
+	1333 + 6 + hello_world<20 10 + 5>;
 $
 
 TASK hello_world^
-	2 + 3;
+	2 + 3 + 4;
 	6 + 5 + 7;
 $
 
 TASK tEsTiNg_CasE_sensitivE_Text_func^
-	100 + 
-200 
-+ 29  + 77 
-
-+ 88;
+	100 + 200 + 29 + 77 + 88;
 $
 
 TASK Fun^
@@ -32,6 +26,7 @@ $
 BEGIN^
 	hello_world<>;
 	thisisalongnamethatimjusttestingandidontexpectanyissues<>;
-	hello_world<>;
+	hello_world<80, a, >;
 	test<>;
+	tEsTiNg_CasE_sensitivE_Text_func<>;
 $
