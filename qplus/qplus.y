@@ -27,7 +27,7 @@ Program *prog;
 	struct Statement *opval;
 }
 
-%token T_BEGIN T_TASK T_START_BLOCK T_END_BLOCK T_END_OP T_START_PARAM T_END_PARAM T_PLUS_OP
+%token T_BEGIN T_TASK T_START_BLOCK T_END_BLOCK T_ASSIGN T_END_STMT T_START_PARAM T_END_PARAM T_PLUS_OP
 %token<sval> T_STRING
 %token<ival> T_INT
 
@@ -36,6 +36,7 @@ Program *prog;
 %type<taskval> task
 %type<blockval> block
 %type<opval> statements
+%type<nodeval> assignment
 %type<nodeval> expression
 %type<nodeval> params
 
@@ -87,15 +88,33 @@ block:
 ;
 
 statements:
-	expression T_END_OP
+	expression T_END_STMT
 	{
 		printf("statements#1\n");
 		$$ = create_statement_node($1, NULL);
 	}
-	| statements expression T_END_OP
+	| assignment T_END_STMT
 	{
-		printf("statements#2\n");
+		printf("statement#2\n");
+		$$ = create_statement_node($1, NULL);
+	}
+	| statements expression T_END_STMT
+	{
+		printf("statements#3\n");
 		$$ = create_statement_node($2, $1);
+	}
+	| statements assignment T_END_STMT
+	{
+		printf("statements#4\n");
+		$$ = create_statement_node($2, $1);
+	}
+;
+
+assignment:
+	T_STRING T_ASSIGN expression
+	{
+		printf("assignment(%s)\n", $1);
+		$$ = create_assign_node($1, $3);
 	}
 ;
 
@@ -149,6 +168,16 @@ int main(void) {
 		yyparse();
 	} while(!feof(yyin));
 
+	// ----- OUTPUT TABLES -----
+	FILE *output_tables;
+	output_tables = fopen("output_tables", "w");
+	if (output_tables == NULL) {
+		perror("Failed to create output file: \"output_tables\"");
+		return 1;
+	}
+	
+	print_tables(output_tables);
+	
 	// ----- OUTPUT TREE -----
 	FILE *output_tree;
 	output_tree = fopen("output_tree", "w");
@@ -158,6 +187,7 @@ int main(void) {
 	}
 	
 	print_program(prog, output_tree, 0);
+	
 	
 	// ----- OUTPUT REVERSE -----
 	FILE *output_reverse;
@@ -178,8 +208,10 @@ int main(void) {
 	pseudoasm_program(prog, output_pseudoasm, 0);
 	
 	free_program(prog);
+	fclose(output_tables);
 	fclose(output_tree);
 	fclose(output_reverse);
+	fclose(output_pseudoasm);
 	
 	return 0;
 }

@@ -1,26 +1,27 @@
 TASK test^
-	a + 1 + 4;
+	test_var = 2;
+	test_var = a + 1 + 4;
 $
 
 TASK thisisalongnamethatimjusttestingandidontexpectanyissues^
-	3 + 4;
+	a = 3 + 4;
 	hello_world<281>;
 	hello_world<17 200>;
 	hello_world<1+ 1>;
-	1333 + 6 + hello_world<20 10 + 5>;
+	a = 1333 + 6 + hello_world<20 10 + 5>;
 $
 
 TASK hello_world^
-	2 + 3 + 4;
-	6 + 5 + 7;
+	b = 2 + 3 + 4;
+	b = 6 + 5 + 7;
 $
 
 TASK tEsTiNg_CasE_sensitivE_Text_func^
-	100 + 200 + 29 + 77 + 88;
+	c = 100 + 200 + 29 + 77 + 88;
 $
 
 TASK Fun^
-	20 + 4;
+	d = 20 + 4;
 $
 
 BEGIN^

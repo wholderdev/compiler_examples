@@ -12,12 +12,19 @@ typedef enum {
 	NODE_OP,
 	NODE_TASK,
 	NODE_PARAM,
-	NODE_STMT
+	NODE_STMT,
+	NODE_ASSIGN,
 } NodeType;
 
 typedef enum {
 	OP_ADD
 } OpType;
+
+typedef struct LazyTable {
+	const char *name;
+	int addr;
+	struct LazyTable *next;
+} LazyTable;
 
 typedef struct Program {
 	struct Task *task_ll;
@@ -58,6 +65,10 @@ typedef struct Node {
 			struct Node *self;
 			struct Node *next;
 		} param_data;
+		struct {
+			const char *var_name;
+			struct Node *expr;
+		} assign_data;
 	} data;
 } Node;
 
@@ -71,6 +82,7 @@ Node* create_var_node(const char *name);
 Node* create_op_node(OpType type, Node *left, Node *right);
 Node* create_task_node(const char *name, Node *params);
 Node* create_param_node(Node *self, Node *next);
+Node* create_assign_node(const char *name, Node *expr);
 
 void reverse_program(Program *p_prog, FILE *output_file, int level);
 void reverse_task(Task *p_task, FILE *output_file, int level);
@@ -86,6 +98,7 @@ void pseudoasm_node(Node *p_node, FILE *output_file, int level);
 void pseudoasm_parampush(Node *p_node, FILE *output_file, int level);
 void pseudoasm_parampop(Node *p_node, FILE *output_file, int level);
 
+void print_tables(FILE *output_file);
 void print_program(Program *p_prog, FILE *output_file, int level);
 void print_task(Task *p_task, FILE *output_file, int level);
 void print_block(Block *p_block, FILE *output_file, int level);
@@ -95,6 +108,10 @@ void lazy_tab(FILE *output_file, int level);
 
 Task* lookup_task(Program *param_prog, const char *name);
 
+void free_tables();
+//	Keeping two versions in case I need them later
+void free_task_table(LazyTable *p_task_t);
+void free_var_table(LazyTable *p_var_t);
 void free_program(Program *p_prog);
 void free_tasks(Task *p_task);
 void free_block(Block *p_block);

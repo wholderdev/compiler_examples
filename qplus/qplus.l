@@ -16,7 +16,8 @@
 "TASK"			{ return T_TASK; }
 \^			{ return T_START_BLOCK; }
 \$			{ return T_END_BLOCK; }
-";"			{ return T_END_OP; }
+"="			{ return T_ASSIGN; }
+";"			{ return T_END_STMT; }
 "+"			{ return T_PLUS_OP; }
 "<"			{ return T_START_PARAM; }
 ">"			{ return T_END_PARAM; }

@@ -1,6 +1,8 @@
 #include "qplus_structs.h"
 
-int variable_count = 0;
+int last_addr = 0;
+struct LazyTable *task_table = NULL;
+struct LazyTable *var_table = NULL;
 
 Program* create_program() {
 	printf("create_program\n");
@@ -14,6 +16,12 @@ Task* create_task(const char *name, Block *p_block) {
 	Task *new_task = (Task *)malloc(sizeof(Task));
 	new_task->name = strdup(name);
 	new_task->block = p_block;
+
+	LazyTable *new_table = (LazyTable *)malloc(sizeof(LazyTable));
+	new_table->name = strdup(name);
+	new_table->addr = 0;
+	new_table->next = task_table;
+	task_table = new_table;
 	
 	return new_task;
 }
@@ -87,6 +95,21 @@ Node* create_param_node(Node *self, Node *next) {
 	return new_node;
 }
 
+Node* create_assign_node(const char *name, Node *expr) {
+	Node* new_node = (Node *)malloc(sizeof(Node));
+	new_node->type = NODE_ASSIGN;
+	new_node->data.assign_data.var_name = strdup(name);
+	new_node->data.assign_data.expr = expr;
+
+	LazyTable *new_table = (LazyTable *)malloc(sizeof(LazyTable));
+	new_table->name = strdup(name);
+	new_table->addr = 0;
+	new_table->next = var_table;
+	var_table = new_table;
+
+	return new_node;
+}
+
 void reverse_program(Program *p_prog, FILE *output_file, int level) {
 	if(p_prog) {
 		Task *cur_task = p_prog->task_ll;
@@ -153,13 +176,17 @@ void reverse_node(Node *p_node, FILE *output_file, int level) {
 				
 				break;
 			case NODE_PARAM:
-				reverse_node(p_node->data.param_data.self, output_file,
-					level + 1);
+				reverse_node(p_node->data.param_data.self, output_file, level + 1);
 				
 				fprintf(output_file, ", ");
 				
-				reverse_node(p_node->data.param_data.next, output_file,
-					level + 1);
+				reverse_node(p_node->data.param_data.next, output_file, level + 1);
+				
+				break;
+			case NODE_ASSIGN:
+				fprintf(output_file, "%s = ", p_node->data.assign_data.var_name);
+				
+				reverse_node(p_node->data.assign_data.expr, output_file, level + 1);
 				
 				break;
 		}
@@ -168,7 +195,6 @@ void reverse_node(Node *p_node, FILE *output_file, int level) {
 }
 
 void pseudoasm_program(Program *p_prog, FILE *output_file, int level) {
-	variable_count = 0;
 	if(p_prog) {
 		Task *cur_task = p_prog->task_ll;	
 		while(cur_task) {
@@ -212,7 +238,7 @@ void pseudoasm_node(Node *p_node, FILE *output_file, int level) {
 				
 				break;
 			case NODE_VAR:
-				fprintf(output_file, "\tload_var %%r1, %s\n", p_node->data.var_name);
+				fprintf(output_file, "\tload_var %%r1, addr(%s)\n", p_node->data.var_name);
 
 				break;
 			case NODE_OP:
@@ -240,6 +266,11 @@ void pseudoasm_node(Node *p_node, FILE *output_file, int level) {
 				pseudoasm_node(p_node->data.param_data.next, output_file, level + 1);
 				
 				break;
+			case NODE_ASSIGN:
+				pseudoasm_node(p_node->data.assign_data.expr, output_file, level + 1);
+				fprintf(output_file, "\tsave_var addr(%s), %%r1\n", p_node->data.assign_data.var_name);
+
+				break;
 		}
 	}
 	return;
@@ -262,6 +293,21 @@ void pseudoasm_parampop(Node *p_node, FILE *output_file, int level) {
 		curp_node = curp_node->data.param_data.next;
 	}
 	return;
+}
+
+void print_tables(FILE *output_file) {
+	LazyTable *cur_task = task_table;	
+	fprintf(output_file, "Tasks:\n");
+	while(cur_task) {
+		fprintf(output_file, "\t%s: %i\n", cur_task->name, cur_task->addr);
+		cur_task = cur_task->next;
+	}
+	LazyTable *cur_var = var_table;	
+	fprintf(output_file, "Vars:\n");
+	while(cur_var) {
+		fprintf(output_file, "\t%s: %i\n", cur_var->name, cur_var->addr);
+		cur_var = cur_var->next;
+	}
 }
 
 void print_program(Program *p_prog, FILE *output_file, int level) {
@@ -384,14 +430,21 @@ void print_node(Node *p_node, FILE *output_file, int level) {
 			
 			lazy_tab(output_file, level);
 			fprintf(output_file, "\tself\n");
-			print_node(p_node->data.param_data.self, output_file,
-				level + 1);
+			print_node(p_node->data.param_data.self, output_file, level + 1);
 			
 			lazy_tab(output_file, level);
 			fprintf(output_file, "\tnext\n");
-			print_node(p_node->data.param_data.next, output_file,
-				level + 1);
+			print_node(p_node->data.param_data.next, output_file, level + 1);
 			
+			break;
+		case NODE_ASSIGN:
+			lazy_tab(output_file, level);
+			fprintf(output_file, "NODE_ASSIGN\n");
+
+			lazy_tab(output_file, level);
+			fprintf(output_file, "\tname(%s)\n");
+			print_node(p_node->data.assign_data.expr, output_file, level + 1);
+
 			break;
 	}
 	return;
@@ -413,6 +466,33 @@ Task* lookup_task(Program *param_prog, const char *name) {
 		temp_task = temp_task->next;
 	}
 	return NULL;
+}
+
+void free_tables() {
+	printf("Freeing Task Table:\n");
+	free_task_table(task_table);
+	printf("Freeing Var Table:\n");
+	free_var_table(var_table);
+
+	return;
+}
+
+void free_task_table(LazyTable *p_task_t) {
+	if(p_task_t) {
+		free_task_table(p_task_t);
+		free((char *)p_task_t->name);
+		free(p_task_t);
+	}
+	return;
+}
+
+void free_var_table(LazyTable *p_var_t) {
+	if(p_var_t) {
+		free_var_table(p_var_t);
+		free((char *)p_var_t->name);
+		free(p_var_t);
+	}
+	return;
 }
 
 void free_program(Program *p_prog) {
@@ -505,6 +585,11 @@ void free_nodes(Node *p_node) {
 			printf("\t\t\t\t\tNODE_PARAM\n");
 			free_nodes(p_node->data.param_data.next);
 			free_nodes(p_node->data.param_data.self);
+			break;
+		case NODE_ASSIGN:
+			printf("\t\t\t\t\tNODE_ASSIGN\n");
+			free((char *)p_node->data.assign_data.var_name);
+			free_nodes(p_node->data.assign_data.expr);
 			break;
 	}
 
