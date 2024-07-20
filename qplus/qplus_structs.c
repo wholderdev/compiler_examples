@@ -442,7 +442,7 @@ void print_node(Node *p_node, FILE *output_file, int level) {
 			fprintf(output_file, "NODE_ASSIGN\n");
 
 			lazy_tab(output_file, level);
-			fprintf(output_file, "\tname(%s)\n");
+			fprintf(output_file, "\tname(%s)\n", p_node->data.assign_data.var_name);
 			print_node(p_node->data.assign_data.expr, output_file, level + 1);
 
 			break;

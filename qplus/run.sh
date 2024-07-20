@@ -7,7 +7,7 @@ fi
 make;
 
 if [ -f "qplus" ]; then
-	./qplus < input_asm_test;# &> output_compiler;
+	./qplus < input_files/input_asm_test;# &> output_compiler;
 fi
 
 #if [ -f "answer_output" ]; then

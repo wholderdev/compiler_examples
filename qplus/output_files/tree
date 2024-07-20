@@ -42,8 +42,7 @@ PROGRAM
 		BLOCK
 			STATEMENT
 				NODE_ASSIGN
-					name(	name(%s)
-)
+					name(d)
 					NODE_OP(OP_ADD)
 						left
 						NODE_INT
@@ -56,8 +55,7 @@ PROGRAM
 		BLOCK
 			STATEMENT
 				NODE_ASSIGN
-					name(	name(%s)
-)
+					name(c)
 					NODE_OP(OP_ADD)
 						left
 						NODE_OP(OP_ADD)
@@ -85,8 +83,7 @@ PROGRAM
 		BLOCK
 			STATEMENT
 				NODE_ASSIGN
-					name(	name(%s)
-)
+					name(b)
 					NODE_OP(OP_ADD)
 						left
 						NODE_OP(OP_ADD)
@@ -101,8 +98,7 @@ PROGRAM
 							value(4)
 			STATEMENT
 				NODE_ASSIGN
-					name(	name(%s)
-)
+					name(b)
 					NODE_OP(OP_ADD)
 						left
 						NODE_OP(OP_ADD)
@@ -120,8 +116,7 @@ PROGRAM
 		BLOCK
 			STATEMENT
 				NODE_ASSIGN
-					name(	name(%s)
-)
+					name(a)
 					NODE_OP(OP_ADD)
 						left
 						NODE_INT
@@ -171,8 +166,7 @@ PROGRAM
 							NULL
 			STATEMENT
 				NODE_ASSIGN
-					name(	name(%s)
-)
+					name(a)
 					NODE_OP(OP_ADD)
 						left
 						NODE_OP(OP_ADD)
@@ -207,14 +201,12 @@ PROGRAM
 		BLOCK
 			STATEMENT
 				NODE_ASSIGN
-					name(	name(%s)
-)
+					name(test_var)
 					NODE_INT
 						value(2)
 			STATEMENT
 				NODE_ASSIGN
-					name(	name(%s)
-)
+					name(test_var)
 					NODE_OP(OP_ADD)
 						left
 						NODE_OP(OP_ADD)
