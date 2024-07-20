@@ -1,0 +1,130 @@
+Label BEGIN:
+	jump label:hello_world
+	jump label:thisisalongnamethatimjusttestingandidontexpectanyissues
+	load_var %r1, addr(a)
+	push_param %r1
+	load_int %r1, 80
+	push_param %r1
+	jump label:hello_world
+	pop_param
+	pop_param
+	jump label:test
+	jump label:tEsTiNg_CasE_sensitivE_Text_func
+	ret
+
+Label Fun:
+	load_int %r1, 20
+	push %r1
+	load_int %r1, 4
+	pop %r2
+	add %r1, %r2
+	save_var addr(d), %r1
+	ret
+
+Label tEsTiNg_CasE_sensitivE_Text_func:
+	load_int %r1, 100
+	push %r1
+	load_int %r1, 200
+	pop %r2
+	add %r1, %r2
+	push %r1
+	load_int %r1, 29
+	pop %r2
+	add %r1, %r2
+	push %r1
+	load_int %r1, 77
+	pop %r2
+	add %r1, %r2
+	push %r1
+	load_int %r1, 88
+	pop %r2
+	add %r1, %r2
+	save_var addr(c), %r1
+	ret
+
+Label hello_world:
+	load_int %r1, 2
+	push %r1
+	load_int %r1, 3
+	pop %r2
+	add %r1, %r2
+	push %r1
+	load_int %r1, 4
+	pop %r2
+	add %r1, %r2
+	save_var addr(b), %r1
+	load_int %r1, 6
+	push %r1
+	load_int %r1, 5
+	pop %r2
+	add %r1, %r2
+	push %r1
+	load_int %r1, 7
+	pop %r2
+	add %r1, %r2
+	save_var addr(b), %r1
+	ret
+
+Label thisisalongnamethatimjusttestingandidontexpectanyissues:
+	load_int %r1, 3
+	push %r1
+	load_int %r1, 4
+	pop %r2
+	add %r1, %r2
+	save_var addr(a), %r1
+	load_int %r1, 281
+	push_param %r1
+	jump label:hello_world
+	pop_param
+	load_int %r1, 200
+	push_param %r1
+	load_int %r1, 17
+	push_param %r1
+	jump label:hello_world
+	pop_param
+	pop_param
+	load_int %r1, 1
+	push %r1
+	load_int %r1, 1
+	pop %r2
+	add %r1, %r2
+	push_param %r1
+	jump label:hello_world
+	pop_param
+	load_int %r1, 1333
+	push %r1
+	load_int %r1, 6
+	pop %r2
+	add %r1, %r2
+	push %r1
+	load_int %r1, 10
+	push %r1
+	load_int %r1, 5
+	pop %r2
+	add %r1, %r2
+	push_param %r1
+	load_int %r1, 20
+	push_param %r1
+	jump label:hello_world
+	pop_param
+	pop_param
+	pop %r2
+	add %r1, %r2
+	save_var addr(a), %r1
+	ret
+
+Label test:
+	load_int %r1, 2
+	save_var addr(test_var), %r1
+	load_var %r1, addr(a)
+	push %r1
+	load_int %r1, 1
+	pop %r2
+	add %r1, %r2
+	push %r1
+	load_int %r1, 4
+	pop %r2
+	add %r1, %r2
+	save_var addr(test_var), %r1
+	ret
+

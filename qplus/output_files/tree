@@ -1,0 +1,229 @@
+PROGRAM
+	TASK
+		Name: BEGIN
+		BLOCK
+			STATEMENT
+				NODE_TASK
+					name(hello_world)
+					params
+						NULL
+			STATEMENT
+				NODE_TASK
+					name(thisisalongnamethatimjusttestingandidontexpectanyissues)
+					params
+						NULL
+			STATEMENT
+				NODE_TASK
+					name(hello_world)
+					params
+					NODE_PARAM
+						self
+						NODE_VAR
+							name(a)
+						next
+						NODE_PARAM
+							self
+							NODE_INT
+								value(80)
+							next
+								NULL
+			STATEMENT
+				NODE_TASK
+					name(test)
+					params
+						NULL
+			STATEMENT
+				NODE_TASK
+					name(tEsTiNg_CasE_sensitivE_Text_func)
+					params
+						NULL
+	TASK
+		Name: Fun
+		BLOCK
+			STATEMENT
+				NODE_ASSIGN
+					name(	name(%s)
+)
+					NODE_OP(OP_ADD)
+						left
+						NODE_INT
+							value(20)
+						right
+						NODE_INT
+							value(4)
+	TASK
+		Name: tEsTiNg_CasE_sensitivE_Text_func
+		BLOCK
+			STATEMENT
+				NODE_ASSIGN
+					name(	name(%s)
+)
+					NODE_OP(OP_ADD)
+						left
+						NODE_OP(OP_ADD)
+							left
+							NODE_OP(OP_ADD)
+								left
+								NODE_OP(OP_ADD)
+									left
+									NODE_INT
+										value(100)
+									right
+									NODE_INT
+										value(200)
+								right
+								NODE_INT
+									value(29)
+							right
+							NODE_INT
+								value(77)
+						right
+						NODE_INT
+							value(88)
+	TASK
+		Name: hello_world
+		BLOCK
+			STATEMENT
+				NODE_ASSIGN
+					name(	name(%s)
+)
+					NODE_OP(OP_ADD)
+						left
+						NODE_OP(OP_ADD)
+							left
+							NODE_INT
+								value(2)
+							right
+							NODE_INT
+								value(3)
+						right
+						NODE_INT
+							value(4)
+			STATEMENT
+				NODE_ASSIGN
+					name(	name(%s)
+)
+					NODE_OP(OP_ADD)
+						left
+						NODE_OP(OP_ADD)
+							left
+							NODE_INT
+								value(6)
+							right
+							NODE_INT
+								value(5)
+						right
+						NODE_INT
+							value(7)
+	TASK
+		Name: thisisalongnamethatimjusttestingandidontexpectanyissues
+		BLOCK
+			STATEMENT
+				NODE_ASSIGN
+					name(	name(%s)
+)
+					NODE_OP(OP_ADD)
+						left
+						NODE_INT
+							value(3)
+						right
+						NODE_INT
+							value(4)
+			STATEMENT
+				NODE_TASK
+					name(hello_world)
+					params
+					NODE_PARAM
+						self
+						NODE_INT
+							value(281)
+						next
+							NULL
+			STATEMENT
+				NODE_TASK
+					name(hello_world)
+					params
+					NODE_PARAM
+						self
+						NODE_INT
+							value(200)
+						next
+						NODE_PARAM
+							self
+							NODE_INT
+								value(17)
+							next
+								NULL
+			STATEMENT
+				NODE_TASK
+					name(hello_world)
+					params
+					NODE_PARAM
+						self
+						NODE_OP(OP_ADD)
+							left
+							NODE_INT
+								value(1)
+							right
+							NODE_INT
+								value(1)
+						next
+							NULL
+			STATEMENT
+				NODE_ASSIGN
+					name(	name(%s)
+)
+					NODE_OP(OP_ADD)
+						left
+						NODE_OP(OP_ADD)
+							left
+							NODE_INT
+								value(1333)
+							right
+							NODE_INT
+								value(6)
+						right
+						NODE_TASK
+							name(hello_world)
+							params
+							NODE_PARAM
+								self
+								NODE_OP(OP_ADD)
+									left
+									NODE_INT
+										value(10)
+									right
+									NODE_INT
+										value(5)
+								next
+								NODE_PARAM
+									self
+									NODE_INT
+										value(20)
+									next
+										NULL
+	TASK
+		Name: test
+		BLOCK
+			STATEMENT
+				NODE_ASSIGN
+					name(	name(%s)
+)
+					NODE_INT
+						value(2)
+			STATEMENT
+				NODE_ASSIGN
+					name(	name(%s)
+)
+					NODE_OP(OP_ADD)
+						left
+						NODE_OP(OP_ADD)
+							left
+							NODE_VAR
+								name(a)
+							right
+							NODE_INT
+								value(1)
+						right
+						NODE_INT
+							value(4)

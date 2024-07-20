@@ -170,9 +170,9 @@ int main(void) {
 
 	// ----- OUTPUT TABLES -----
 	FILE *output_tables;
-	output_tables = fopen("output_tables", "w");
+	output_tables = fopen("output_files/tables", "w");
 	if (output_tables == NULL) {
-		perror("Failed to create output file: \"output_tables\"");
+		perror("Failed to create output file: \"output_files/tables\"");
 		return 1;
 	}
 	
@@ -180,9 +180,9 @@ int main(void) {
 	
 	// ----- OUTPUT TREE -----
 	FILE *output_tree;
-	output_tree = fopen("output_tree", "w");
+	output_tree = fopen("output_files/tree", "w");
 	if (output_tree == NULL) {
-		perror("Failed to create output file: \"output_tree\"");
+		perror("Failed to create output file: \"output_files/tree\"");
 		return 1;
 	}
 	
@@ -191,18 +191,18 @@ int main(void) {
 	
 	// ----- OUTPUT REVERSE -----
 	FILE *output_reverse;
-	output_reverse = fopen("output_reverse", "w");
+	output_reverse = fopen("output_files/reverse", "w");
 	if (output_reverse == NULL) {
-		perror("Failed to create output file: \"output_reverse\"");
+		perror("Failed to create output file: \"output_files/reverse\"");
 		return 1;
 	}
 	
 	reverse_program(prog, output_reverse, 0);
 	
 	FILE *output_pseudoasm;
-	output_pseudoasm = fopen("output_pseudoasm", "w");
+	output_pseudoasm = fopen("output_files/pseudoasm", "w");
 	if (output_pseudoasm == NULL) {
-		perror("Failed to create output file: \"output_pseudoasm\"");
+		perror("Failed to create output file: \"output_files/pseudoasm\"");
 		return 1;
 	}
 	pseudoasm_program(prog, output_pseudoasm, 0);

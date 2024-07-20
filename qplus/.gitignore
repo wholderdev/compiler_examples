@@ -3,5 +3,3 @@ lex.yy.c
 qplus
 qplus.output
 dev_session.vim
-output_tree
-output_answer
